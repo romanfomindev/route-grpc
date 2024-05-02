@@ -11,6 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/romanfomindev/route-grpc/tree/master/category-service/internal/config"
+	"github.com/romanfomindev/route-grpc/tree/master/category-service/internal/service/category"
+	mw_server "github.com/romanfomindev/route-grpc/tree/master/category-service/pkg/mw/server"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -21,16 +24,19 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 
-	api "github.com/ozonmp/omp-grpc-template/internal/app/sample-service"
-	"github.com/ozonmp/omp-grpc-template/internal/config"
-	desc "github.com/ozonmp/omp-grpc-template/pkg/sample-service"
+	desc "github.com/romanfomindev/route-grpc/tree/master/category-service/pkg/category-service"
+
+	api "github.com/romanfomindev/route-grpc/tree/master/category-service/internal/app/category-service"
 )
 
 type GrpcServer struct {
+	categoryService *category.Service
 }
 
-func NewGrpcServer() *GrpcServer {
-	return &GrpcServer{}
+func NewGrpcServer(categoryService *category.Service) *GrpcServer {
+	return &GrpcServer{
+		categoryService: categoryService,
+	}
 }
 
 func (s *GrpcServer) Start(cfg *config.Config) error {
@@ -80,10 +86,11 @@ func (s *GrpcServer) Start(cfg *config.Config) error {
 			grpc_ctxtags.UnaryServerInterceptor(),
 			grpc_opentracing.UnaryServerInterceptor(),
 			grpcrecovery.UnaryServerInterceptor(),
+			mw_server.GRPCUnauthenticatedRequest,
 		)),
 	)
 
-	desc.RegisterSampleServiceServer(grpcServer, api.NewSampleService())
+	desc.RegisterCategoryServiceServer(grpcServer, api.NewCategoryService(s.categoryService))
 
 	go func() {
 		log.Info().Msgf("GRPC Server is listening on: %s", grpcAddr)

@@ -1,0 +1,21 @@
+package mvclient
+
+import (
+	"context"
+
+	"github.com/romanfomindev/route-grpc/tree/master/product-service/internal/config"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+)
+
+const (
+	appNameHeader    = "x-app-name"
+	appVersionHeader = "x-app-version"
+)
+
+// AddAppInfoUnary добавляет в единичные запросы информацию о клиенте.
+func AddAppInfoUnary(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	ctx = metadata.AppendToOutgoingContext(ctx, appNameHeader, config.AppName)
+	ctx = metadata.AppendToOutgoingContext(ctx, appVersionHeader, config.AppVersion)
+	return invoker(ctx, method, req, reply, cc, opts...)
+}

@@ -33,7 +33,7 @@ test:
 
 .PHONY: generate
 generate:
-	$(BUF_EXE) generate
+	buf generate
 
 .PHONY: deps
 deps:

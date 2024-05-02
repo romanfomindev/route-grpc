@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 
-	desc "github.com/ozonmp/omp-grpc-template/pkg/sample-service"
+	desc "github.com/romanfomindev/route-grpc/tree/master/category-service/pkg/category-service"
 )
 
 func createGatewayServer(grpcAddr, gatewayAddr string, allowedOrigins []string) *http.Server {
@@ -31,7 +31,7 @@ func createGatewayServer(grpcAddr, gatewayAddr string, allowedOrigins []string) 
 	}
 
 	mux := runtime.NewServeMux()
-	if err := desc.RegisterSampleServiceHandler(context.Background(), mux, conn); err != nil {
+	if err := desc.RegisterCategoryServiceHandler(context.Background(), mux, conn); err != nil {
 		log.Fatal().Err(err).Msg("Failed registration handler")
 	}
 

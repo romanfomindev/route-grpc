@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package romanfomindev.route_grpc.product_service.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "pkg/product-service;product_service";
+
+service ProductService {
+  rpc CreateProduct (CreateProductRequest) returns (CreateProductResponse);
+}
+
+message Product {
+  uint64 id  = 1;
+  string name = 2;
+  int64 category_id = 3;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  reserved 2;
+  uint64 category_id = 3 [(validate.rules).uint64.gt = 0];
+}
+
+message CreateProductResponse {
+  Product result = 1;
+}

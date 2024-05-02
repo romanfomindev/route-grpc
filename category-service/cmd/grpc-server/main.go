@@ -3,15 +3,16 @@ package main
 import (
 	"flag"
 
+	config "github.com/romanfomindev/route-grpc/tree/master/category-service/internal/config"
+	"github.com/romanfomindev/route-grpc/tree/master/category-service/internal/server"
+	"github.com/romanfomindev/route-grpc/tree/master/category-service/internal/service/category"
+	category_repository "github.com/romanfomindev/route-grpc/tree/master/category-service/internal/service/category/repository"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	_ "github.com/lib/pq"
-
-	"github.com/ozonmp/omp-grpc-template/internal/config"
-	"github.com/ozonmp/omp-grpc-template/internal/server"
 )
 
 func main() {
@@ -34,7 +35,12 @@ func main() {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 
-	if err := server.NewGrpcServer().Start(&cfg); err != nil {
+	categoryRepo := category_repository.New()
+	categoryService := category.New(categoryRepo)
+
+	if err := server.NewGrpcServer(
+		categoryService,
+	).Start(&cfg); err != nil {
 		log.Error().Err(err).Msg("Failed creating gRPC server")
 
 		return
